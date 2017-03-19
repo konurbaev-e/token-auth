@@ -1,0 +1,4 @@
+rootProject.name = 'token-auth'
+include 'spring-token-auth'
+include 'jmeter-tests'
+
