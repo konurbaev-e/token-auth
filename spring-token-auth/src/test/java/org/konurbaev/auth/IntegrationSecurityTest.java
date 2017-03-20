@@ -7,9 +7,7 @@ import org.junit.runner.RunWith;
 import org.konurbaev.auth.security.AuthenticationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -17,21 +15,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.Charset;
-import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static java.lang.Math.toIntExact;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.isA;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -48,7 +37,7 @@ public class IntegrationSecurityTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
     }
 
-    private final MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
+    private final MediaType jsonContentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 
     private final MediaType htmlContentType = new MediaType(MediaType.TEXT_HTML.getType(),
@@ -67,21 +56,27 @@ public class IntegrationSecurityTest {
         String strAuthenticationRequest = asJsonString(authenticationRequest);
         System.out.println(strAuthenticationRequest);
         // perform authentication
-        MvcResult response = mockMvc.perform(post("/api/login").content(strAuthenticationRequest).contentType(contentType))
+        System.out.println("Calling /api/login");
+        MvcResult response = mockMvc.perform(post("/api/login").content(strAuthenticationRequest).contentType(jsonContentType))
                 .andExpect(status().isOk())
-                //.andExpect(content().contentType(contentType))
+                .andExpect(content().contentType(jsonContentType))
                 .andExpect(jsonPath("token", isA(String.class)))
                 .andReturn()
         ;
+        // get token from response to use it in hello call
         String strResponse = response.getResponse().getContentAsString();
         System.out.println(strResponse);
         String token = strResponse.substring(10, strResponse.length() - 2);
         System.out.println(token);
+        // call hello endpoint
+        System.out.println("Calling /api/hello");
         response = mockMvc.perform(get("/api/hello").with(user("user")).header("token", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(plainContentType))
+                .andExpect(content().string("Hello, user"))
                 .andReturn()
                 ;
+        // print hello call response
         strResponse = response.getResponse().getContentAsString();
         System.out.println(strResponse);
     }
@@ -89,8 +84,7 @@ public class IntegrationSecurityTest {
     public static String asJsonString(final Object obj) {
         try {
             final ObjectMapper mapper = new ObjectMapper();
-            final String jsonContent = mapper.writeValueAsString(obj);
-            return jsonContent;
+            return mapper.writeValueAsString(obj);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

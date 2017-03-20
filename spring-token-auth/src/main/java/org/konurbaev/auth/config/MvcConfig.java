@@ -12,23 +12,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-//        registry.addViewController("/home").setViewName("home");
-//        registry.addViewController("/").setViewName("home");
-//        registry.addViewController("/hello").setViewName("hello");
-//        registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/newlogin").setViewName("newlogin.html");
+        registry.addViewController("/hello").setViewName("hello.html");
+        registry.addViewController("/index").setViewName("index.html");
     }
-
-//    @Override
-//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-//        registry
-//                .addResourceHandler("/js/**", "/css/**")
-//                .addResourceLocations("/js/", "/css/**")
-//                .setCachePeriod(3600)
-//                .resourceChain(true)
-//                .addResolver(new GzipResourceResolver())
-//                .addResolver(new PathResourceResolver());
-//    }
-
-
 }
