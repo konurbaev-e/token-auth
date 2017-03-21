@@ -1,5 +1,7 @@
 package org.konurbaev.auth.rest;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.konurbaev.auth.security.AuthenticationRequest;
 import org.konurbaev.auth.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/api")
 public class AuthController {
 
+    private static final Logger logger = LogManager.getLogger(AuthController.class);
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -24,8 +28,8 @@ public class AuthController {
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) {
-        System.out.println("In rest controller");
+    public ResponseEntity createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) {
+        logger.info("In /api/login rest controller");
         // Perform the security
         Authentication usernamePasswordAuthentication;
         try {
@@ -37,6 +41,7 @@ public class AuthController {
             );
         } catch (AuthenticationException e){
             // catch AuthenticationException if incorrect username or password
+            logger.error("Authentication error", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 

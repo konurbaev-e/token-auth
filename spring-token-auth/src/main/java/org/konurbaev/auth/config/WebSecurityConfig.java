@@ -52,7 +52,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity webSecurity) throws Exception {
-        publicResources.forEach(pattern -> webSecurity.ignoring().antMatchers(pattern));
         webSecurity
                 .ignoring()
                 .antMatchers(

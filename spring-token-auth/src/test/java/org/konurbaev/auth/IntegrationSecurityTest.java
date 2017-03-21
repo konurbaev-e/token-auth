@@ -1,6 +1,9 @@
 package org.konurbaev.auth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,24 +30,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class IntegrationSecurityTest {
 
+    private static final Logger logger = LogManager.getLogger(IntegrationSecurityTest.class);
+    
     private MockMvc mockMvc;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    @Before
-    public void localSetup() throws Exception {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
-    }
-
     private final MediaType jsonContentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
             MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 
-    private final MediaType htmlContentType = new MediaType(MediaType.TEXT_HTML.getType(),
-            MediaType.TEXT_HTML.getSubtype(), Charset.forName("utf8"));
-
     private final MediaType plainContentType = new MediaType(MediaType.TEXT_PLAIN.getType(),
             MediaType.TEXT_PLAIN.getSubtype(), Charset.forName("utf8"));
+
+    @Before
+    public void localSetup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+    }
 
     @Test
     public void testSecurityWithAuthAndHello() throws Exception {
@@ -54,9 +56,9 @@ public class IntegrationSecurityTest {
         authenticationRequest.setPassword("password");
         // convert user auth request to json
         String strAuthenticationRequest = asJsonString(authenticationRequest);
-        System.out.println(strAuthenticationRequest);
+        logger.info(strAuthenticationRequest);
         // perform authentication
-        System.out.println("Calling /api/login");
+        logger.info("Calling /api/login");
         MvcResult response = mockMvc.perform(post("/api/login").content(strAuthenticationRequest).contentType(jsonContentType))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(jsonContentType))
@@ -65,11 +67,11 @@ public class IntegrationSecurityTest {
         ;
         // get token from response to use it in hello call
         String strResponse = response.getResponse().getContentAsString();
-        System.out.println(strResponse);
+        logger.info(strResponse);
         String token = strResponse.substring(10, strResponse.length() - 2);
-        System.out.println(token);
+        logger.info(token);
         // call hello endpoint
-        System.out.println("Calling /api/hello");
+        logger.info("Calling /api/hello");
         response = mockMvc.perform(get("/api/hello").with(user("user")).header("token", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(plainContentType))
@@ -78,16 +80,12 @@ public class IntegrationSecurityTest {
                 ;
         // print hello call response
         strResponse = response.getResponse().getContentAsString();
-        System.out.println(strResponse);
+        logger.info(strResponse);
     }
 
-    public static String asJsonString(final Object obj) {
-        try {
-            final ObjectMapper mapper = new ObjectMapper();
-            return mapper.writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static String asJsonString(final Object obj) throws JsonProcessingException {
+        final ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(obj);
     }
 
 }
