@@ -1,7 +1,6 @@
 package org.konurbaev.auth.rest;
 
 import org.konurbaev.auth.security.AuthenticationRequest;
-import org.konurbaev.auth.security.TokenResponse;
 import org.konurbaev.auth.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,8 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/api")
@@ -46,6 +43,6 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthentication);
 
         // Return the token
-        return ResponseEntity.ok(tokenService.generateToken());
+        return ResponseEntity.ok(tokenService.generateToken(authenticationRequest.getUsername()));
     }
 }

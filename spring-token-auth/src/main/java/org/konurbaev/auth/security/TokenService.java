@@ -9,7 +9,15 @@ public class TokenService {
     @Autowired
     private ExternalTokenService externalTokenService;
 
-    public TokenResponse generateToken(){
-        return new TokenResponse(externalTokenService.generateToken());
+    public TokenResponse generateToken(String username){
+        return new TokenResponse(externalTokenService.generateToken(username));
+    }
+
+    public boolean doesExistToken(String token){
+        return externalTokenService.doesExistToken(token);
+    }
+
+    public String getUsernameForToken(String token) {
+        return externalTokenService.getUsernameForToken(token);
     }
 }

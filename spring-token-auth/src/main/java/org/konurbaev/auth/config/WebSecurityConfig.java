@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.konurbaev.auth.config.Constants.publicResources;
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -24,11 +26,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-//                .antMatchers("/swagger-ui/**",
-//                        "/v2/api-docs",
-//                        "/js/**",
+//                .antMatchers("/js/**",
 //                        "/css/**",
 //                        "/index",
+//                        "/index.html",
 //                        "/api/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -45,18 +46,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // disable page caching
         http.headers().cacheControl();
 
+        // we don't need CSRF because our token is invulnerable
         http.csrf().disable();
     }
 
     @Override
     public void configure(WebSecurity webSecurity) throws Exception {
+        publicResources.forEach(pattern -> webSecurity.ignoring().antMatchers(pattern));
         webSecurity
                 .ignoring()
-                .antMatchers("/swagger-ui/**",
-                        "/v2/api-docs",
+                .antMatchers(
                         "/js/**",
                         "/css/**",
                         "/index",
+                        "/index.html",
                         "/api/login");
     }
 

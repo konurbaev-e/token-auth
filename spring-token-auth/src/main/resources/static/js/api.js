@@ -10,9 +10,27 @@ function setToken(token) {
     localStorage.setItem(TOKEN_KEY, token);
 }
 
-function removeJwtToken() {
+function removeToken() {
     console.log('removing token ' + token);
     localStorage.removeItem(TOKEN_KEY);
+}
+
+function getTokenFromCookie(){
+    console.log('getting token from cookie ... ');
+    var matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + TOKEN_KEY.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+function setTokenInCookie(token){
+    console.log('setting token in cookie ' + token);
+    document.cookie = TOKEN_KEY + "=" + token;
+}
+
+function removeTokenFromCookie(){
+    console.log('removing token from cookie ' + token);
+    setCookie(TOKEN_KEY, "", {expires: -1})
 }
 
 function login(){
@@ -32,9 +50,11 @@ function login(){
         contentType: "application/json",
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
-            setToken(data.token);
             console.log('api/login provided token ' + data.token);
+            setToken(data.token);
+            setTokenInCookie(data.token)
             alert('Successful authentication, your token is ' + data.token);
+            window.location.href = "/hello"
         },
         error: function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status === 401) {
