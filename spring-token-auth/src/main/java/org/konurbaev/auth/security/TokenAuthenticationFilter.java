@@ -46,14 +46,16 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 logger.info("header token " + token + " for uri " + uri);
             }
             if (StringUtils.isEmpty(token)){
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "no token in request");
+                response.setStatus(302);
+                response.sendRedirect("/relogin");
                 return;
             }
 
             // validation of token in external service
             if (!tokenService.doesExistToken(token)){
                 logger.info("token " + token + " does not exist in token service");
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "token does not exist in token service");
+                response.setStatus(302);
+                response.sendRedirect("/relogin");
                 return;
             }
 

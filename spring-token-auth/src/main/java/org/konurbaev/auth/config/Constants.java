@@ -11,6 +11,8 @@ public final class Constants {
             "/css/",
             "/index",
             "/index.html",
+            "/relogin",
+            "/relogin.html",
             "/api/login"
     )));
 }

@@ -66,6 +66,11 @@ function login(){
     });
 }
 
+function reLogin(){
+    console.log('starting reLogin ... ');
+    window.location.href = "/index"
+}
+
 function hello(){
     console.log('starting hello ... ');
 
