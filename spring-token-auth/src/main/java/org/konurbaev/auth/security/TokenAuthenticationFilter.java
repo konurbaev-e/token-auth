@@ -52,6 +52,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
             // validation of token in external service
             if (!tokenService.doesExistToken(token)){
+                logger.info("token " + token + " does not exist in token service");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "token does not exist in token service");
                 return;
             }
