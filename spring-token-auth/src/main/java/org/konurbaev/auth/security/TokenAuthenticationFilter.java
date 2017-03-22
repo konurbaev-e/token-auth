@@ -33,15 +33,18 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             String token = request.getHeader("token");
             if (StringUtils.isEmpty(token)) {
                 logger.info("no or empty header token " + token + " for uri " + uri);
-                Optional<Cookie> optionalCookie = Arrays.stream(request.getCookies()).filter(cookie -> "token".equals(cookie.getName())).findFirst();
-                if (optionalCookie.isPresent()){
-                    token = optionalCookie.get().getValue();
-                    logger.info("cookie token " + token + " for uri " + uri);
+                if (request.getCookies() != null) {
+                    Optional<Cookie> optionalCookie = Arrays.stream(request.getCookies()).filter(cookie -> "token".equals(cookie.getName())).findFirst();
+                    if (optionalCookie.isPresent()){
+                        token = optionalCookie.get().getValue();
+                        logger.info("cookie token " + token + " for uri " + uri);
+                    }
+                    else {
+                        logger.info("no or empty cookie token " + token + " for uri " + uri);
+                    }
+                } else {
+                    logger.info("no cookies for uri " + uri);
                 }
-                else {
-                    logger.info("no or empty cookie token " + token + " for uri " + uri);
-                }
-
             } else {
                 logger.info("header token " + token + " for uri " + uri);
             }
